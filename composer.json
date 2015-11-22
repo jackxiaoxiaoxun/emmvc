@@ -15,7 +15,7 @@
     },
  "autoload": {
         "psr-4": {
-            "Emmvc\\": ""
+            "Emmvc\\": "Emmvc/"
         }
     }
 }
