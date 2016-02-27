@@ -168,20 +168,6 @@ DerivedData
 *.xcuserstate
 
 
-### Laravel ###
-/bootstrap/compiled.php
-.env.*.php
-.env.php
-public/uploads
-storage
-storage/app/*
-storage/framework/cahce/*
-storage/framework/sessions/*
-storage/framework/views/*
-storage/logs/*
-.env
-!storage/logs/.gitkeep
-!storage/framework/views/.gitkeep
 ### Objective-C ###
 # Xcode
 #
@@ -253,5 +239,4 @@ local.properties
 # TeXlipse plugin
 .texlipse
 
-vendor/symfony/finder/Symfony/Component/Finder/Tests/
 vendor
