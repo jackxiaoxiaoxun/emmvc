@@ -26,7 +26,7 @@ class Config
 	 */
 	public function __get($name)
 	{
-		$this->$name	= require $this->configPath . DIRECTORY_SEPARATOR . $name . DIRECTORY_SEPARATOR .'config.php';
+		$this->$name	= require $this->configPath . DIRECTORY_SEPARATOR . $name . DIRECTORY_SEPARATOR .'*.php';
 
 		return $this->$name;
 	}
