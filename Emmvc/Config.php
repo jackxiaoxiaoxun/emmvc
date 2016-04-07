@@ -18,7 +18,7 @@ class Config
 	 * 配置文件夹路径
 	 * @var string
 	 */
-	public $configPath = '';
+	public static $configPath = '';
 	
 	/**
 	 * 获取配置数组
@@ -26,11 +26,18 @@ class Config
 	 */
 	public function __get($name)
 	{
-		$this->$name	= require $this->configPath . DIRECTORY_SEPARATOR . $name . DIRECTORY_SEPARATOR .'*.php';
+		$this->$name	= require self::$configPath . DIRECTORY_SEPARATOR . $name . DIRECTORY_SEPARATOR .'*.php';
 
 		return $this->$name;
 	}
-	
+	/**
+	 * 获取配置数组
+	 * @param string $name
+	 */
+	public static function get($name)
+	{
+		return require self::$configPath . DIRECTORY_SEPARATOR . $name . DIRECTORY_SEPARATOR .'*.php';
+	}
 	/**
 	 * 
 	 * @param string $path
