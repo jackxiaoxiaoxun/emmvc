@@ -48,10 +48,9 @@ class URI
 	 *
 	 * @access	public
 	 */
-	function __construct()
+	function __construct($config)
 	{
-		$this->config =& load_class('Config', 'core');
-
+		$this->config	= $config;
 	}
 
 
@@ -65,7 +64,7 @@ class URI
 	 */
 	function _fetch_uri_string()
 	{
-		if (strtoupper($this->config->item('uri_protocol')) == 'AUTO')
+		if (strtoupper($this->config['uri_protocol']) == 'AUTO')
 		{
 			// Is the request coming from the command line?
 			if (php_sapi_name() == 'cli' or defined('STDIN'))
@@ -110,7 +109,7 @@ class URI
 			return;
 		}
 
-		$uri = strtoupper($this->config->item('uri_protocol'));
+		$uri = strtoupper($this->config['uri_protocol']);
 
 		if ($uri == 'REQUEST_URI')
 		{
@@ -139,7 +138,7 @@ class URI
 	function _set_uri_string($str)
 	{
 		// Filter out control characters
-		$str = remove_invisible_characters($str, FALSE);
+		//$str = remove_invisible_characters($str, FALSE);
 
 		// If the URI contains only a slash we'll kill it
 		$this->uri_string = ($str == '/') ? '' : $str;
@@ -231,13 +230,13 @@ class URI
 	 */
 	function _filter_uri($str)
 	{
-		if ($str != '' && $this->config->item('permitted_uri_chars') != '' && $this->config->item('enable_query_strings') == FALSE)
+		if ($str != '' && $this->config['permitted_uri_chars'] != '' && $this->config['enable_query_strings'] == FALSE)
 		{
 			// preg_quote() in PHP 5.3 escapes -, so the str_replace() and addition of - to preg_quote() is to maintain backwards
 			// compatibility as many are unaware of how characters in the permitted_uri_chars will be parsed as a regex pattern
-			if ( ! preg_match("|^[".str_replace(array('\\-', '\-'), '-', preg_quote($this->config->item('permitted_uri_chars'), '-'))."]+$|i", $str))
+			if ( ! preg_match("|^[".str_replace(array('\\-', '\-'), '-', preg_quote($this->config['permitted_uri_chars'], '-'))."]+$|i", $str))
 			{
-				show_error('The URI you submitted has disallowed characters.', 400);
+				throw \Exception('The URI you submitted has disallowed characters');
 			}
 		}
 
@@ -258,9 +257,9 @@ class URI
 	 */
 	function _remove_url_suffix()
 	{
-		if  ($this->config->item('url_suffix') != "")
+		if  ($this->config['url_suffix'] != "")
 		{
-			$this->uri_string = preg_replace("|".preg_quote($this->config->item('url_suffix'))."$|", "", $this->uri_string);
+			$this->uri_string = preg_replace("|".preg_quote($this->config['url_suffix'])."$|", "", $this->uri_string);
 		}
 	}
 

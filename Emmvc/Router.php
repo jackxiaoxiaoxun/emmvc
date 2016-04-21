@@ -65,10 +65,11 @@ class Router
 	 *
 	 * Runs the route mapping function.
 	 */
-	function __construct()
+	function __construct($uri, $routes)
 	{
-		$this->config =& load_class('Config', 'core');
-		$this->uri =& load_class('URI', 'core');
+		$this->uri		= $uri;
+		$this->config	= $uri->config;
+		$this->routes	= $routes;
 	}
 
 	// --------------------------------------------------------------------
@@ -88,40 +89,28 @@ class Router
 		// since URI segments are more search-engine friendly, but they can optionally be used.
 		// If this feature is enabled, we will gather the directory/class/method a little differently
 		$segments = array();
-		if ($this->config->item('enable_query_strings') === TRUE AND isset($_GET[$this->config->item('controller_trigger')]))
+		if ($this->config['enable_query_strings'] === TRUE AND isset($_GET[$this->config['controller_trigger'] ]))
 		{
-			if (isset($_GET[$this->config->item('directory_trigger')]))
+			if (isset($_GET[$this->config['directory_trigger'] ]))
 			{
-				$this->set_directory(trim($this->uri->_filter_uri($_GET[$this->config->item('directory_trigger')])));
+				$this->set_directory(trim($this->uri->_filter_uri($_GET[$this->config['directory_trigger'] ])));
 				$segments[] = $this->fetch_directory();
 			}
 
-			if (isset($_GET[$this->config->item('controller_trigger')]))
+			if (isset($_GET[$this->config['controller_trigger'] ]))
 			{
-				$this->set_class(trim($this->uri->_filter_uri($_GET[$this->config->item('controller_trigger')])));
+				$this->set_class(trim($this->uri->_filter_uri($_GET[$this->config['controller_trigger'] ])));
 				$segments[] = $this->fetch_class();
 			}
 
-			if (isset($_GET[$this->config->item('function_trigger')]))
+			if (isset($_GET[$this->config['function_trigger'] ]))
 			{
-				$this->set_method(trim($this->uri->_filter_uri($_GET[$this->config->item('function_trigger')])));
+				$this->set_method(trim($this->uri->_filter_uri($_GET[$this->config['function_trigger'] ])));
 				$segments[] = $this->fetch_method();
 			}
 		}
 
-		// Load the routes.php file.
-		if (defined('ENVIRONMENT') AND is_file(APPPATH.'config/'.ENVIRONMENT.'/routes.php'))
-		{
-			include(APPPATH.'config/'.ENVIRONMENT.'/routes.php');
-		}
-		elseif (is_file(APPPATH.'config/routes.php'))
-		{
-			include(APPPATH.'config/routes.php');
-		}
-
-		$this->routes = ( ! isset($route) OR ! is_array($route)) ? array() : $route;
-		unset($route);
-
+		
 		// Set the default controller so we can display it in the event
 		// the URI doesn't correlated to a valid controller.
 		$this->default_controller = ( ! isset($this->routes['default_controller']) OR $this->routes['default_controller'] == '') ? FALSE : strtolower($this->routes['default_controller']);
@@ -166,7 +155,7 @@ class Router
 	{
 		if ($this->default_controller === FALSE)
 		{
-			show_error("Unable to determine what should be displayed. A default route has not been specified in the routing file.");
+			throw new \ErrorException('"Unable to determine what should be displayed. A default route has not been specified in the routing file."');
 		}
 		// Is the method being specified?
 		if (strpos($this->default_controller, '/') !== FALSE)
@@ -187,7 +176,6 @@ class Router
 		// re-index the routed segments array so it starts with 1 rather than 0
 		$this->uri->_reindex_segments();
 
-		log_message('debug', "No URI present. Default controller set.");
 	}
 
 	// --------------------------------------------------------------------

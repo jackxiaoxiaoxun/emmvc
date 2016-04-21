@@ -8,10 +8,10 @@ namespace Emmvc;
 
 
 
-class view
+class View
 {
 
-	public static $directory = NULL;
+	public static $directory = [];
 
 	public static $ext = '.php';
 
@@ -53,7 +53,11 @@ class view
 		try {
 			ob_start();
 			extract((array) $this);
-			require static::$directory . $this->__view . static::$ext;
+			foreach (static::$directory as $p)
+			{
+				if (file_exists($p = $p . $this->__view . static::$ext))
+				require $p;
+			}
 			return ob_get_clean();
 		}
 		catch(\Exception $e)
