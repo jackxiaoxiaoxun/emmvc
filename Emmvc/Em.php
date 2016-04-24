@@ -4,7 +4,10 @@
 namespace Emmvc;
 
 
-
+/**
+ * 
+ * @property Db $db
+ */
 class Em extends Service
 {
 	public static $em;

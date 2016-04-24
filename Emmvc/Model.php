@@ -17,7 +17,7 @@ class Model
 	
 	public function __construct()
 	{
-		$this->db	= Service::Db();
+		$this->db	= Em::$em->db;
 	}
 	
 	
