@@ -76,8 +76,7 @@ class Router
 		$this->config	= $uri->config;
 		$this->routes	= $routes;
 		
-		$this->set_ns($this->uri->config['controllersNS']);
-
+		$this->set_ns($routes['default_NS']);
 	}
 
 	// --------------------------------------------------------------------
@@ -252,8 +251,6 @@ class Router
 			return $segments;
 		}
 
-		
-
 		// If we've gotten this far it means that the URI does not correlate to a valid
 		// controller class.  We will now see if there is an override
 		if ( ! empty($this->routes['404_override']))
@@ -289,22 +286,28 @@ class Router
 		// Turn the segment array into a URI string
 		$uri = implode('/', $this->uri->segments);
 
-		// Is there a literal match?  If so we're done
-		if (isset($this->routes[$uri]))
-		{
-			return $this->_set_request(explode('/', $this->routes[$uri]));
-		}
-		
 		if (isset($this->routes [ $this->uri->segments[0] ]  ['ns']))
 		{
 				$this->ns    = $this->routes [ $this->uri->segments[0] ] ['ns'];
 				array_shift( $this->uri->segments );
+			return 	$this->_set_request($this->uri->segments);
 		}
 		
 
 		// Loop through the route array looking for wild-cards
 		foreach ($this->routes as $key => $val)
 		{
+			$len		= strlen($key);
+			if (substr($uri, 0, $len) == $key)
+			{
+				if (isset($val['ns']))
+					$this->ns	= $val['ns'];
+
+				if (isset($val['class']))
+					return $this->_set_request(explode('/', $val['class']));
+			}
+			
+			
 			// Convert wild-cards to RegEx
 			$key = str_replace(':any', '.+', str_replace(':num', '[0-9]+', $key));
 
@@ -312,15 +315,15 @@ class Router
 			if (preg_match('#^'.$key.'$#', $uri))
 			{
 				// Do we have a back-reference?
-				if (strpos($val, '$') !== FALSE AND strpos($key, '(') !== FALSE)
+				if (strpos($val['class'], '$') !== FALSE AND strpos($key, '(') !== FALSE)
 				{
-					$val = preg_replace('#^'.$key.'$#', $val, $uri);
+					$val['class'] = preg_replacuserse('#^'.$key.'$#', $val['class'], $uri);
 				}
 
-				return $this->_set_request(explode('/', $val));
+				return $this->_set_request(explode('/', $val['class']));
 			}
 		}
-
+		
 		// If we got this far it means we didn't encounter a
 		// matching route so we'll set the site default route
 		$this->_set_request($this->uri->segments);
