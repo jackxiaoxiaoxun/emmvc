@@ -23,7 +23,7 @@ class Em extends Service
 		View::$directory[]		= $config['themes'];
 		$this->autoLoader		= $config['autoLoader'];
 
-		parent::__construct([]);
+		parent::__construct(Config::get('service'));
 	}
 	
 	public static function run($config)
