@@ -12,6 +12,12 @@ class Db
     protected $text     = 0;
     protected $pdo      = array();
     public    $host     = '';
+    /**
+     * 数据库配置
+     * @var array
+     */
+    public 	  $config	= [];
+
     protected $sql      = array(
             'select'    => ''
             , 'where'   => ''
@@ -318,16 +324,12 @@ class Db
     
     			if ( empty( $this->pdo[$host] ) )
     			{
-    				$config[$host]['dsn']       = 'mysql:host=mysql.win;dbname=test;charset=utf8';
-    				$config[$host]['user']      = 'root';
-    				$config[$host]['pass']      = '123456';
-    				$config[$host]['prefix']    = '';
-    				$option[$host]      = array(
-    						PDO::ATTR_DEFAULT_FETCH_MODE    =>PDO::FETCH_ASSOC
-    						, PDO::ATTR_ERRMODE             => PDO::ERRMODE_EXCEPTION
-    				);
-    				$this->pdo[$host]    = new PDO( $config[$host]['dsn'], $config[$host]['user'], $config[$host]['pass'], $option[$host] );
-    				$this->pdo[$host]->table_prefix       = $config[$host]['prefix'];
+    				$this->pdo[$host]    = new \PDO( $this->config[$host]['dsn'], 
+    												$this->config[$host]['user'], 
+    												$this->config[$host]['pass'], 
+    												$this->config[$host] ['option']
+    											);
+    				$this->pdo[$host]->table_prefix       = $this->config[$host]['prefix'];
     			}
     			return $this->pdo[$host];
     }
@@ -336,7 +338,6 @@ class Db
     {
     	try
     	{
-    		$start_time     = microtime();
     		$return     = '';
     		$pdo        = $this->pdo_connect();
     		$sql    = str_replace( '<<_', $pdo->table_prefix, $sql );
@@ -380,16 +381,15 @@ class Db
     
     		if ( isset( $this->host[1] ))
     			unset( $this->pdo[$this->host[0]] );
-    
-    			$end_time   = microtime();
-    			$end_time   = explode( ' ', $end_time );
-    			$start_time = explode( ' ', $start_time );
-    			$end_time   = number_format( ( $end_time[0] + $end_time[1] ) - ( $start_time[0] + $start_time[1] ), 8);
+
+    			
+    			
+    		//	$this->queries[] = array( $end_time, $this->sql( $sql, $data ) . "\n" . $sql );
+
     			$this->setNull();
-    			$this->queries[] = array( $end_time, $this->sql( $sql, $data ) . "\n" . $sql );
     			return $return;
     
-    	}catch( PDOException $e )
+    	}catch( \PDOException $e )
     	{
     		echo $e->getMessage();
     	}
