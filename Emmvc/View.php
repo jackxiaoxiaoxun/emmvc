@@ -16,6 +16,8 @@ class View
 	public static $ext = '.php';
 
 	private $__view = NULL;
+	
+	public $data;
 
 	/**
 	 * Returns a new view object for the given view.
@@ -36,10 +38,7 @@ class View
 	 */
 	public function set($array)
 	{
-		foreach($array as $k => $v)
-		{
-			$this->$k = $v;
-		}
+		$this->data	= $array;
 	}
 
 
@@ -52,7 +51,7 @@ class View
 	{
 		try {
 			ob_start();
-			extract((array) $this);
+			extract((array) $this->data);
 			foreach (static::$directory as $p)
 			{
 				if (file_exists($p = $p . $this->__view . static::$ext))

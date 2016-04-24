@@ -99,6 +99,11 @@ class Service
         return $this->__s[$name];
     }
     
+    public function __get($name)
+    {
+    	return $this->__call($name, []);
+    }
+    
     public static function __callstatic($name, $args)
     {
         if (empty(self::$self))
