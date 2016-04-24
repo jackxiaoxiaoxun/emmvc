@@ -100,9 +100,9 @@ class Router
 		if ($this->config['enable_query_strings'] === TRUE AND isset($_GET[$this->config['controller_trigger'] ]))
 		{
 			if (isset($_GET[$this->config['ns_trigger'] ])
-					and isset( $this->routes[ trim($this->uri->_filter_uri($_GET[$this->config['ns_trigger'] ])) ]['ns'] ))
+					and isset( $this->routes [ trim($this->uri->_filter_uri($_GET[$this->config['ns_trigger'] ])) ] ['ns'] ))
 			{
-				$this->set_ns($this->routes[ trim($this->uri->_filter_uri($_GET[$this->config['ns_trigger'] ])) ]['ns']);
+				$this->set_ns($this->routes [ trim($this->uri->_filter_uri($_GET[$this->config['ns_trigger'] ])) ] ['ns'] );
 			}
 
 			if (isset($_GET[$this->config['controller_trigger'] ]))
@@ -294,6 +294,13 @@ class Router
 		{
 			return $this->_set_request(explode('/', $this->routes[$uri]));
 		}
+		
+		if (isset($this->routes [ $this->uri->segments[0] ]  ['ns']))
+		{
+				$this->ns    = $this->routes [ $this->uri->segments[0] ] ['ns'];
+				array_shift( $this->uri->segments );
+		}
+		
 
 		// Loop through the route array looking for wild-cards
 		foreach ($this->routes as $key => $val)
