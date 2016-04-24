@@ -38,6 +38,8 @@ class URI
 	 * @access public
 	 */
 	public $rsegments		= array();
+	
+	public $config;
 
 	/**
 	 * Constructor

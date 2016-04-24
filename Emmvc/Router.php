@@ -51,7 +51,7 @@ class Router
 	 * @var string
 	 * @access public
 	 */
-	public $directory		= '';
+	public $ns		= '';
 	/**
 	 * Default controller (and method if specific)
 	 *
@@ -75,6 +75,9 @@ class Router
 		$this->uri		= $uri;
 		$this->config	= $uri->config;
 		$this->routes	= $routes;
+		
+		$this->set_ns($this->uri->config['controllersNS']);
+
 	}
 
 	// --------------------------------------------------------------------
@@ -96,16 +99,16 @@ class Router
 		$segments = array();
 		if ($this->config['enable_query_strings'] === TRUE AND isset($_GET[$this->config['controller_trigger'] ]))
 		{
-			if (isset($_GET[$this->config['directory_trigger'] ]))
+			if (isset($_GET[$this->config['ns_trigger'] ])
+					and isset( $this->routes[ trim($this->uri->_filter_uri($_GET[$this->config['ns_trigger'] ])) ]['ns'] ))
 			{
-				$this->set_directory(trim($this->uri->_filter_uri($_GET[$this->config['directory_trigger'] ])));
-				$segments[] = $this->fetch_directory();
+				$this->set_ns($this->routes[ trim($this->uri->_filter_uri($_GET[$this->config['ns_trigger'] ])) ]['ns']);
 			}
 
 			if (isset($_GET[$this->config['controller_trigger'] ]))
 			{
-				$this->set_class(trim($this->uri->_filter_uri($_GET[$this->config['controller_trigger'] ])));
-				$segments[] = $this->fetch_class();
+				$this->set_class( $seg = trim($this->uri->_filter_uri($_GET[$this->config['controller_trigger'] ])));
+				$segments[] = $seg;
 			}
 
 			if (isset($_GET[$this->config['function_trigger'] ]))
@@ -121,6 +124,7 @@ class Router
 		$this->default_controller = ( ! isset($this->routes['default_controller']) OR $this->routes['default_controller'] == '') ? FALSE : strtolower($this->routes['default_controller']);
 
 		// Were there any query string segments?  If so, we'll validate them and bail out since we're done.
+
 		if (count($segments) > 0)
 		{
 			return $this->_validate_request($segments);
@@ -242,7 +246,7 @@ class Router
 			return $segments;
 		}
 
-		$class		= $this->uri->config['controllersNS'] . $segments[0] . 'Controller';
+		$class		= $this->ns . $segments[0] . 'Controller';
 		if (Em::$em->autoLoader->loadClass($class))
 		{
 			return $segments;
@@ -254,6 +258,7 @@ class Router
 		// controller class.  We will now see if there is an override
 		if ( ! empty($this->routes['404_override']))
 		{
+			http_response_code(404);
 			$x = explode('/', $this->routes['404_override']);
 
 			$this->set_class($x[0]);
@@ -325,7 +330,7 @@ class Router
 	 */
 	function set_class($class)
 	{
-		$this->class = $this->uri->config['controllersNS'] . str_replace(array('/', '.'), '', $class) . 'Controller';
+		$this->class = $this->ns . str_replace(array('/', '.'), '', $class) . 'Controller';
 	}
 
 	// --------------------------------------------------------------------
@@ -376,62 +381,30 @@ class Router
 	// --------------------------------------------------------------------
 
 	/**
-	 *  Set the directory name
+	 *  Set the namespace
 	 *
 	 * @access	public
 	 * @param	string
 	 * @return	void
 	 */
-	function set_directory($dir)
+	function set_ns($ns)
 	{
-		$this->directory = str_replace(array('/', '.'), '', $dir).'/';
+		$this->ns = $ns;
 	}
 
 	// --------------------------------------------------------------------
 
 	/**
-	 *  Fetch the sub-directory (if any) that contains the requested controller class
+	 *  Fetch namespace
 	 *
 	 * @access	public
 	 * @return	string
 	 */
-	function fetch_directory()
+	function fetch_ns()
 	{
-		return $this->directory;
+		return $this->ns;
 	}
 
-	// --------------------------------------------------------------------
-
-	/**
-	 *  Set the controller overrides
-	 *
-	 * @access	public
-	 * @param	array
-	 * @return	null
-	 */
-	function _set_overrides($routing)
-	{
-		if ( ! is_array($routing))
-		{
-			return;
-		}
-
-		if (isset($routing['directory']))
-		{
-			$this->set_directory($routing['directory']);
-		}
-
-		if (isset($routing['controller']) AND $routing['controller'] != '')
-		{
-			$this->set_class($routing['controller']);
-		}
-
-		if (isset($routing['function']))
-		{
-			$routing['function'] = ($routing['function'] == '') ? 'index' : $routing['function'];
-			$this->set_method($routing['function']);
-		}
-	}
 
 
 }
