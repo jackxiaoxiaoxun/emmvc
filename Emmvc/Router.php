@@ -289,6 +289,10 @@ class Router
 		if (isset($this->routes [ $this->uri->segments[0] ]  ['ns']))
 		{
 				$this->ns    = $this->routes [ $this->uri->segments[0] ] ['ns'];
+
+			if (isset( $this->routes [ $this->uri->segments[0] ] ['class'] ))
+				return $this->_set_request(explode('/',  $this->routes [ $this->uri->segments[0] ] ['class'] ));
+
 				array_shift( $this->uri->segments );
 			return 	$this->_set_request($this->uri->segments);
 		}
@@ -320,6 +324,8 @@ class Router
 					$val['class'] = preg_replacuserse('#^'.$key.'$#', $val['class'], $uri);
 				}
 
+				if (isset($val['ns']))
+					$this->ns	= $val['ns'];
 				return $this->_set_request(explode('/', $val['class']));
 			}
 		}
