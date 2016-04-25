@@ -59,11 +59,19 @@ class Hooks
 	 * @param string $type  事件类型 '':pc站 m:手机站
 	 * @return Hooks
 	 */
-	public static function  event($which, $type = '')
+	public static function  event($which, $assets = '', $type = '')
 	{
-		self::instance()->type	= $type;
-		self::instance()->position($which);
+		if (empty(self::$instance))
+		{
+			self::$instance		= new static();
+		}
+
+		self::$instance->type	= $type;
+		self::$instance->assets	= $assets;
+		self::$instance->position($which);
 		self::$instance->type	= '';
+		self::$instance->assets	= '';
+
 		return self::$instance;
 	}
 
@@ -77,7 +85,6 @@ class Hooks
 		if (empty(self::$instance))
 		{
 			self::$instance		= new static;
-			self::$instance->assets	= new \stdClass();
 		}
 		return self::$instance;
 	}
@@ -87,7 +94,7 @@ class Hooks
 	public function position($which)
 	{
 		$hooks 	= 'hooks' . $this->type;
-		foreach ( config::instance()->$hooks  as $hook)
+		foreach ( Em::$em->config->$hooks  as $hook)
 		{
 			$this->hooks	=& $hook;
 			$this->_call_hook($which);
@@ -162,7 +169,7 @@ class Hooks
 
 		$class		= FALSE;
 		$function	= FALSE;
-		$params		= '';
+		$params		= [];
 
 		if (isset($data['class']) AND $data['class'] != '')
 		{
