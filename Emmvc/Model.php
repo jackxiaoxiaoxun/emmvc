@@ -9,6 +9,8 @@ namespace Emmvc;
 
 class Model
 {
+	use oInstan;
+
 	/**
 	 * mysql query builder
 	 * @var Db
