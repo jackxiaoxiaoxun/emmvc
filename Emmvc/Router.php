@@ -246,7 +246,7 @@ class Router
 		}
 
 		$class		= $this->ns . $segments[0] . 'Controller';
-		if (Em::$em->autoLoader->loadClass($class))
+		if (class_exists($class))
 		{
 			return $segments;
 		}
